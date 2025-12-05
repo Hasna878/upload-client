@@ -1,32 +1,44 @@
 Static Code Analysis Setup (Checkstyle)
 
-For the upload-client module of my AWS Java project, I configured Checkstyle as a static code analysis tool. Checkstyle analyses the Java source code without executing it and reports style and formatting issues.
+This project uses Checkstyle as a static code analysis tool. Checkstyle examines the Java source code without executing it and reports formatting issues, style violations, and potential problems.
+The goal is to enforce consistent coding standards and improve code readability and maintainability.
 
-I created a configuration file at:
+📁 Checkstyle Configuration
+
+A custom Checkstyle rule file is provided at:
 
 config/checkstyle/checkstyle.xml
 
-This file defines the rules used by Checkstyle, for example:
 
-maximum line length of 120 characters,
+This file defines the style rules applied to the project, including:
 
-4-space indentation,
+Maximum line length: 120 characters
 
-mandatory braces for control structures (if, for, while, …),
+Indentation rules: 4 spaces
 
-whitespace and formatting conventions.
+Mandatory braces for control structures (if, for, while, etc.)
 
-Checkstyle is integrated into the Maven build using the maven-checkstyle-plugin in pom.xml. The plugin is declared inside the <build><plugins> section and references the custom configuration file:
+Enforced whitespace and formatting conventions
 
+These rules are applied automatically during the Maven build process.
+
+🔧 Maven Integration
+
+Checkstyle is integrated through the maven-checkstyle-plugin inside the project's pom.xml.
+The plugin executes Checkstyle during the verify phase of the Maven lifecycle.
+
+Extract from pom.xml
 <plugin>
     <groupId>org.apache.maven.plugins</groupId>
     <artifactId>maven-checkstyle-plugin</artifactId>
     <version>3.3.1</version>
+
     <configuration>
         <configLocation>config/checkstyle/checkstyle.xml</configLocation>
         <failsOnError>true</failsOnError>
         <linkXRef>false</linkXRef>
     </configuration>
+
     <executions>
         <execution>
             <id>checkstyle-validation</id>
@@ -38,21 +50,50 @@ Checkstyle is integrated into the Maven build using the maven-checkstyle-plugin 
     </executions>
 </plugin>
 
-How to run the analysis
 
-Prerequisites:
+With this configuration:
 
-Java (JDK 17)
+The build fails if Checkstyle detects violations
 
-Maven installed and available on the command line
+The output clearly displays any issues in the terminal
 
-From the upload-client directory, the static analysis can be executed with:
+Running Checkstyle becomes fully automated
+
+▶️ Running Static Code Analysis
+Prerequisites
+
+Java 17 (JDK 17)
+
+Apache Maven installed (mvn available in terminal)
+
+Command
+
+From the root of the upload-client module, run:
 
 mvn verify
 
+What Happens
 
-During the verify phase, Maven automatically invokes Checkstyle using the specified configuration file. If no violations are found, the build ends with BUILD SUCCESS. If there are style violations, Maven reports them in the console and the build fails, which enforces code quality rules.
+During the verify phase:
 
-You can adjust the wording a bit if you want, but this already fits the requirement:
+Maven compiles the project
 
-“Proof: link to configuration and explanation of how to install and run analysis.”
+Maven triggers the Checkstyle plugin
+
+The plugin reads your configuration file
+
+Style checks run on all Java source files
+
+If the project passes all style rules:
+
+BUILD SUCCESS
+You have 0 Checkstyle violations.
+
+
+If violations are found:
+
+BUILD FAILURE
+[ERROR] ... details of the rule violations ...
+
+
+This ensures consistent code standards throughout the project.

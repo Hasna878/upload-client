@@ -113,26 +113,37 @@ public class UploadClient {
         logger.warn("No arguments were provided to UploadClient. Using default configuration.");
         }
 
-        if (args.length != 3) {
-            System.out.println("Usage: java UploadClient <localFilePath> <bucketName> <queueUrl>");
-            System.exit(1);
+        String example = "debug test";
+        logger.info("Example variable: {}", example);
+
+
+        try{
+            if (args.length != 3) {
+                System.out.println("Usage: java UploadClient <localFilePath> <bucketName> <queueUrl>");
+                System.exit(1);
+            }
+
+            String filePath = args[0];
+            String bucket = args[1];
+            String queueUrl = args[2];
+
+            String key = "raw/" + Paths.get(filePath).getFileName().toString();
+
+            UploadClient client = new UploadClient();
+
+            // Upload du fichier IoT vers S3
+            client.uploadFileToS3(bucket, key, filePath);
+
+            // Envoi du message SQS pour déclencher Summarize Worker
+            String message = "{ \"bucket\": \"" + bucket + "\", \"key\": \"" + key + "\" }";
+            client.sendMessageToSqs(queueUrl, message);
+
+            System.out.println("Upload Client terminé!");
+        } catch(Exception e){
+            logger.error("Unexpected error during UploadClient execution: {}", e.getMessage(), e);
+
         }
 
-        String filePath = args[0];
-        String bucket = args[1];
-        String queueUrl = args[2];
-
-        String key = "raw/" + Paths.get(filePath).getFileName().toString();
-
-        UploadClient client = new UploadClient();
-
-        // Upload du fichier IoT vers S3
-        client.uploadFileToS3(bucket, key, filePath);
-
-        // Envoi du message SQS pour déclencher Summarize Worker
-        String message = "{ \"bucket\": \"" + bucket + "\", \"key\": \"" + key + "\" }";
-        client.sendMessageToSqs(queueUrl, message);
-
-        System.out.println("Upload Client terminé!");
     }
+
 }

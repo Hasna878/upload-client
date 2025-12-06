@@ -12,6 +12,25 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 
 import java.nio.file.Paths;
+/**
+ * UploadClient is responsible for uploading IoT files to AWS S3
+ * and sending notifications/messages to an AWS SQS queue.
+ *
+ * <p>This class initializes AWS clients using default credentials and
+ * provides high-level methods for:
+ * <ul>
+ *   <li>Uploading files to an S3 bucket</li>
+ *   <li>Sending messages to an SQS queue</li>
+ * </ul>
+ *
+ * <h2>Example usage (CLI):</h2>
+ * <pre>{@code
+ * java UploadClient <localFilePath> <bucketName> <queueUrl>
+ * }</pre>
+ *
+ * @author 
+ * @since 1.0
+ */
 
 public class UploadClient {
 
@@ -20,6 +39,11 @@ public class UploadClient {
 
     private final S3Client s3;
     private final SqsClient sqs;
+    
+    /**
+     * Creates an UploadClient configured for AWS Region EU_WEST_3.
+     * Credentials are automatically loaded using DefaultCredentialsProvider.
+     */
 
     public UploadClient() {
         this.s3 = S3Client.builder()
@@ -32,7 +56,13 @@ public class UploadClient {
                 .credentialsProvider(DefaultCredentialsProvider.create())
                 .build();
     }
-
+   /**
+     * Uploads a local file to an S3 bucket.
+     *
+     * @param bucketName the name of the S3 bucket
+     * @param key        the destination key (path) inside the bucket
+     * @param filePath   the local file path to upload
+     */
     public void uploadFileToS3(String bucketName, String key, String filePath) {
         System.out.println("Uploading file to S3...");
 
@@ -44,6 +74,12 @@ public class UploadClient {
         s3.putObject(request, Paths.get(filePath));
         System.out.println("✔ File uploaded to S3: " + bucketName + "/" + key);
     }
+    /**
+     * Sends a message to an SQS queue.
+     *
+     * @param queueUrl     the SQS queue URL
+     * @param messageBody  the body of the message to send
+     */
 
     public void sendMessageToSqs(String queueUrl, String messageBody) {
         System.out.println("Sending message to SQS...");
@@ -56,6 +92,18 @@ public class UploadClient {
         sqs.sendMessage(request);
         System.out.println("SQS message sent!");
     }
+     /**
+     * CLI entry point for uploading a file and triggering a worker via SQS.
+     *
+     * Expected arguments:
+     * <ol>
+     *   <li>localFilePath</li>
+     *   <li>bucketName</li>
+     *   <li>queueUrl</li>
+     * </ol>
+     *
+     * @param args command-line arguments
+     */
 
     public static void main(String[] args) {
         

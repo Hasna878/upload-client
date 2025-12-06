@@ -1,5 +1,8 @@
 package com.iot.project;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -11,6 +14,9 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import java.nio.file.Paths;
 
 public class UploadClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(UploadClient.class);
+
 
     private final S3Client s3;
     private final SqsClient sqs;
@@ -52,6 +58,13 @@ public class UploadClient {
     }
 
     public static void main(String[] args) {
+        
+        logger.info("Starting UploadClient application...");
+        logger.debug("Program started with {} argument(s): {}", args.length, java.util.Arrays.toString(args));
+        if (args.length == 0) {
+        logger.warn("No arguments were provided to UploadClient. Using default configuration.");
+        }
+
         if (args.length != 3) {
             System.out.println("Usage: java UploadClient <localFilePath> <bucketName> <queueUrl>");
             System.exit(1);
